@@ -45,7 +45,7 @@ export function MyPortals() {
       <div className="text-center py-12">
         <p className="text-gray-400 mb-4">You haven&apos;t placed any portals yet.</p>
         <Link
-          href="/portals/create"
+          href="/portals/map?create=true"
           className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
         >
           Create Your First Portal
@@ -62,7 +62,7 @@ export function MyPortals() {
           className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-4"
         >
           <div className="flex-1 min-w-0">
-            <Link href={`/portals/${portal.id}`} className="font-medium hover:text-purple-300 transition-colors">
+            <Link href={`/portals/map?portal=${portal.id}`} className="font-medium hover:text-purple-300 transition-colors">
               {portal.name}
             </Link>
             <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
@@ -87,7 +87,7 @@ export function MyPortals() {
               {portal.isPublic ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </button>
             <Link
-              href={`/portals/create?edit=${portal.id}`}
+              href={`/portals/map?portal=${portal.id}`}
               className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               <Edit3 className="w-4 h-4" />

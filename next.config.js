@@ -5,6 +5,7 @@ const nextConfig = {
   async redirects() {
     return [
       { source: '/portals/create', destination: '/portals/map?create=true', permanent: true },
+      { source: '/portals/:id((?!map)[^/]+)', destination: '/portals/map?portal=:id', permanent: false },
     ];
   },
 };

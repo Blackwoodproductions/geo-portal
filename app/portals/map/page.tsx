@@ -49,6 +49,11 @@ export default function MapPage() {
       setIsCreating(true);
       window.history.replaceState({}, '', '/portals/map');
     }
+    const portalParam = params.get('portal');
+    if (portalParam) {
+      setSelectedPortalId(portalParam);
+      window.history.replaceState({}, '', '/portals/map');
+    }
   }, [user]);
 
   // Get user location
