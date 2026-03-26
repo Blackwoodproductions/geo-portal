@@ -506,6 +506,16 @@ npx ts-node prisma/seed.ts
 
 The seed is **idempotent** -- users are upserted, and portal data is cleared and recreated on each run.
 
+### Removing seed data
+
+Once deployed and tested with real users, remove all seed data without affecting real user data:
+
+```bash
+npm run prisma:seed-delete
+```
+
+This identifies seed users by their `@geoportal.com` email domain and deletes in FK-safe order: reactions → messages → visits → portals → users. Real user data is never touched.
+
 ---
 
 ## Testing
@@ -599,6 +609,7 @@ geo-portal/
 ├── prisma/
 │   ├── schema.prisma                 # 5 models, 2 enums, 4 indexes
 │   ├── seed.ts                       # Comprehensive demo data
+│   ├── seed-delete.ts                # Remove seed data (keeps real users)
 │   └── migrations/
 ├── __tests__/
 │   ├── helpers.ts                    # Test utilities

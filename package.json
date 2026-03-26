@@ -10,6 +10,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "prisma:seed-delete": "ts-node prisma/seed-delete.ts",
     "prisma:studio": "prisma studio",
     "test": "jest",
     "test:integration": "jest __tests__/api --runInBand"
