@@ -32,9 +32,9 @@ export function PortalDetail({ portalId }: PortalDetailProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">{portal.name}</h1>

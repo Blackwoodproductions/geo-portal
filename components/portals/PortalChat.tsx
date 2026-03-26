@@ -77,7 +77,7 @@ export function PortalChat({ portalId }: PortalChatProps) {
       </div>
 
       {/* Messages */}
-      <div className="h-64 overflow-y-auto p-4 space-y-3">
+      <div className="max-h-48 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
           <p className="text-center text-gray-600 text-sm py-8">No messages yet</p>
         )}
