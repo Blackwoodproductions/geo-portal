@@ -58,9 +58,10 @@ export default function MapPage() {
       fetch(`/api/portals/${portalParam}`)
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {
-          if (data?.latitude && data?.longitude) {
-            setMapCenter({ lat: data.latitude, lng: data.longitude });
-            setFlyTo({ lat: data.latitude, lng: data.longitude, ts: Date.now() });
+          const p = data?.portal;
+          if (p?.latitude && p?.longitude) {
+            setMapCenter({ lat: p.latitude, lng: p.longitude });
+            setFlyTo({ lat: p.latitude, lng: p.longitude, ts: Date.now() });
           }
         })
         .catch(() => {});
