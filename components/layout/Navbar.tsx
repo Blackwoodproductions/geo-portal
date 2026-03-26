@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { Map, Plus, Trophy, User, LogOut, Compass } from 'lucide-react';
+import { Map, Trophy, User, LogOut, Compass } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout, loading } = useAuth();
@@ -18,10 +18,7 @@ export function Navbar() {
           <NavLink href="/portals" icon={<Compass className="w-4 h-4" />} label="Explore" />
           <NavLink href="/portals/map" icon={<Map className="w-4 h-4" />} label="Map" />
           {user && (
-            <>
-              <NavLink href="/portals/create" icon={<Plus className="w-4 h-4" />} label="Create" />
-              <NavLink href="/my-portals" icon={<User className="w-4 h-4" />} label="My Portals" />
-            </>
+            <NavLink href="/my-portals" icon={<User className="w-4 h-4" />} label="My Portals" />
           )}
           <NavLink href="/leaderboard" icon={<Trophy className="w-4 h-4" />} label="Leaderboard" />
 

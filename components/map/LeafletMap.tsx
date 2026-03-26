@@ -50,6 +50,8 @@ export function LeafletMap({
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const onMoveEndRef = useRef(onMoveEnd);
   onMoveEndRef.current = onMoveEnd;
+  const onMapClickRef = useRef(onMapClick);
+  onMapClickRef.current = onMapClick;
   const [tileStyle, setTileStyle] = useState<TileStyleId>('dark_all');
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -66,9 +68,9 @@ export function LeafletMap({
     }).addTo(map);
     tileLayerRef.current = tile;
 
-    if (onMapClick) {
-      map.on('click', (e) => onMapClick(e.latlng.lat, e.latlng.lng));
-    }
+    map.on('click', (e) => {
+      onMapClickRef.current?.(e.latlng.lat, e.latlng.lng);
+    });
 
     map.on('moveend', () => {
       const c = map.getCenter();

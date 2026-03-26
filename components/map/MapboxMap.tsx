@@ -35,6 +35,8 @@ export function MapboxMap({
   const mapMarkersRef = useRef<mapboxgl.Marker[]>([]);
   const onMoveEndRef = useRef(onMoveEnd);
   onMoveEndRef.current = onMoveEnd;
+  const onMapClickRef = useRef(onMapClick);
+  onMapClickRef.current = onMapClick;
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -57,9 +59,9 @@ export function MapboxMap({
 
     mapRef.current = map;
 
-    if (onMapClick) {
-      map.on('click', (e) => onMapClick(e.lngLat.lat, e.lngLat.lng));
-    }
+    map.on('click', (e) => {
+      onMapClickRef.current?.(e.lngLat.lat, e.lngLat.lng);
+    });
 
     map.on('moveend', () => {
       const c = map.getCenter();

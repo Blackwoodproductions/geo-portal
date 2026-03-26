@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreatePortal } from '@/hooks/usePortals';
 import { PORTAL_STYLES, PORTAL_CATEGORIES } from '@/lib/validation';
@@ -11,9 +11,16 @@ const PortalLocationPicker = dynamic(
   () => import('./PortalLocationPicker').then((m) => m.PortalLocationPicker),
   { ssr: false, loading: () => <div className="h-64 bg-gray-800 rounded-lg animate-pulse" /> }
 );
-import { Loader2 } from 'lucide-react';
+import { Loader2, MapPin } from 'lucide-react';
 
-export function PortalEditor() {
+interface PortalEditorProps {
+  embedded?: boolean;
+  selectedLocation?: { lat: number; lng: number; name?: string } | null;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export function PortalEditor({ embedded, selectedLocation, onSuccess, onCancel }: PortalEditorProps = {}) {
   const router = useRouter();
   const createPortal = useCreatePortal();
 
@@ -28,6 +35,15 @@ export function PortalEditor() {
   const [contentUrl, setContentUrl] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [error, setError] = useState('');
+
+  // Sync location from parent when in embedded mode
+  useEffect(() => {
+    if (embedded && selectedLocation) {
+      setLatitude(selectedLocation.lat);
+      setLongitude(selectedLocation.lng);
+      if (selectedLocation.name) setLocationName(selectedLocation.name);
+    }
+  }, [embedded, selectedLocation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +66,11 @@ export function PortalEditor() {
         contentUrl: contentUrl || undefined,
         isPublic,
       });
-      router.push('/my-portals');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/my-portals');
+      }
     } catch (e: any) {
       setError(e.message || 'Failed to create portal');
     }
@@ -151,23 +171,54 @@ export function PortalEditor() {
       </div>
 
       {/* Location Picker */}
-      <PortalLocationPicker
-        onLocationSelect={(lat, lng, name) => {
-          setLatitude(lat);
-          setLongitude(lng);
-          if (name) setLocationName(name);
-        }}
-      />
+      {embedded ? (
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Location</label>
+          {latitude && longitude ? (
+            <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm">
+              <div className="flex items-center gap-2 text-green-400">
+                <MapPin className="w-4 h-4" />
+                <span>{locationName || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`}</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Click the map to change location</p>
+            </div>
+          ) : (
+            <div className="border-2 border-dashed border-gray-700 rounded-lg px-3 py-6 text-center">
+              <MapPin className="w-6 h-6 text-gray-500 mx-auto mb-2" />
+              <p className="text-sm text-gray-400">Click the map to set portal location</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <PortalLocationPicker
+          onLocationSelect={(lat, lng, name) => {
+            setLatitude(lat);
+            setLongitude(lng);
+            if (name) setLocationName(name);
+          }}
+        />
+      )}
 
       {/* Submit */}
-      <button
-        type="submit"
-        disabled={createPortal.isPending}
-        className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-      >
-        {createPortal.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-        {createPortal.isPending ? 'Creating...' : 'Create Portal'}
-      </button>
+      <div className={embedded ? 'flex gap-2' : ''}>
+        {embedded && onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={createPortal.isPending}
+          className={`py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${embedded ? 'flex-1' : 'w-full'}`}
+        >
+          {createPortal.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+          {createPortal.isPending ? 'Creating...' : 'Create Portal'}
+        </button>
+      </div>
     </form>
   );
 }
