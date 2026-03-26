@@ -1,10 +1,12 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { usePortals } from '@/hooks/usePortals';
 import { Eye, MapPin } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 
 export function PortalLeaderboard() {
+  const router = useRouter();
   const { portals, loading } = usePortals();
 
   // Sort by total visits descending
@@ -27,9 +29,10 @@ export function PortalLeaderboard() {
         const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
 
         return (
-          <div
+          <button
             key={portal.id}
-            className={`flex items-center gap-4 bg-gray-900 border rounded-xl p-4 ${
+            onClick={() => router.push(`/portals/map?portal=${portal.id}`)}
+            className={`w-full flex items-center gap-4 bg-gray-900 border rounded-xl p-4 text-left cursor-pointer hover:bg-gray-800/50 transition-colors ${
               rank <= 3 ? 'border-purple-500/30' : 'border-gray-800'
             }`}
           >
@@ -57,7 +60,7 @@ export function PortalLeaderboard() {
               <Eye className="w-4 h-4 text-purple-400" />
               <span className="font-medium text-purple-300">{portal.totalVisits}</span>
             </div>
-          </div>
+          </button>
         );
       })}
 
