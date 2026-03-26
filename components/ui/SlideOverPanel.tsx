@@ -31,7 +31,7 @@ export function SlideOverPanel({ open, onClose, title, children }: SlideOverPane
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[1100] bg-black/50 transition-opacity duration-300 ${
           open ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
@@ -45,7 +45,7 @@ export function SlideOverPanel({ open, onClose, title, children }: SlideOverPane
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className={`fixed inset-y-0 right-0 z-40 w-full max-w-md bg-gray-900 border-l border-gray-800 shadow-xl
+        className={`fixed inset-y-0 right-0 z-[1100] w-full max-w-md bg-gray-900 border-l border-gray-800 shadow-xl
           transform transition-transform duration-300 ease-in-out outline-none
           ${open ? 'translate-x-0' : 'translate-x-full'}`}
       >
