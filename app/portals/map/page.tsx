@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { MapProviderSelector, MapProvider } from '@/components/map/MapProviderSelector';
@@ -11,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Spinner } from '@/components/ui/Spinner';
 import { SlideOverPanel } from '@/components/ui/SlideOverPanel';
 import { PortalEditor } from '@/components/portals/PortalEditor';
+import { PortalDetail } from '@/components/portals/PortalDetail';
 import { Plus } from 'lucide-react';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap').then((m) => m.LeafletMap), {
@@ -28,7 +28,6 @@ const BOGOTA = { lat: 4.711, lng: -74.0721 };
 type MapScope = 'local' | 'all';
 
 export default function MapPage() {
-  const router = useRouter();
   const { user } = useAuth();
   const [provider, setProvider] = useState<MapProvider>('openstreetmap');
   const [scope, setScope] = useState<MapScope>('local');
@@ -36,11 +35,12 @@ export default function MapPage() {
   const [mapCenter, setMapCenter] = useState(BOGOTA);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // Create mode state
+  // Panel state
   const [isCreating, setIsCreating] = useState(false);
   const [placementLocation, setPlacementLocation] = useState<{
     lat: number; lng: number; name?: string;
   } | null>(null);
+  const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
 
   // Auto-open panel from ?create=true
   useEffect(() => {
@@ -110,6 +110,12 @@ export default function MapPage() {
   }, [isCreating]);
 
   // Build markers based on scope
+  const handleMarkerClick = (id: string) => {
+    setSelectedPortalId(id);
+    setIsCreating(false);
+    setPlacementLocation(null);
+  };
+
   const portalMarkers = scope === 'local'
     ? (results?.portals || []).map((p) => ({
         id: p.id,
@@ -117,7 +123,7 @@ export default function MapPage() {
         lng: p.longitude,
         label: `${p.name} (${p.distanceMeters}m)`,
         color: '#d946ef',
-        onClick: () => router.push(`/portals/${p.id}`),
+        onClick: () => handleMarkerClick(p.id),
       }))
     : (allPortalsQuery.data?.portals || []).map((p) => ({
         id: p.id,
@@ -125,7 +131,7 @@ export default function MapPage() {
         lng: p.longitude,
         label: p.name,
         color: '#d946ef',
-        onClick: () => router.push(`/portals/${p.id}`),
+        onClick: () => handleMarkerClick(p.id),
       }));
 
   // Add placement marker when creating
@@ -159,14 +165,20 @@ export default function MapPage() {
     : mapCenter;
   const displayZoom = scope === 'all' && allCenter ? allCenter.zoom : 14;
 
-  const handleCloseCreate = () => {
+  const handleClosePanel = () => {
     setIsCreating(false);
     setPlacementLocation(null);
+    setSelectedPortalId(null);
   };
 
   const handleCreateSuccess = () => {
-    handleCloseCreate();
+    handleClosePanel();
     refetch();
+  };
+
+  const handleOpenCreate = () => {
+    setSelectedPortalId(null);
+    setIsCreating(true);
   };
 
   if (!userLocation) {
@@ -241,10 +253,10 @@ export default function MapPage() {
         )}
       </div>
 
-      {/* Create FAB — only shown when logged in and panel is closed */}
-      {user && !isCreating && (
+      {/* Create FAB — only shown when logged in and no panel is open */}
+      {user && !isCreating && !selectedPortalId && (
         <button
-          onClick={() => setIsCreating(true)}
+          onClick={handleOpenCreate}
           className="absolute bottom-4 right-4 z-[1001] w-12 h-12 bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg flex items-center justify-center transition-colors"
           aria-label="Create portal"
         >
@@ -253,13 +265,18 @@ export default function MapPage() {
       )}
 
       {/* Create panel */}
-      <SlideOverPanel open={isCreating} onClose={handleCloseCreate} title="Create Portal">
+      <SlideOverPanel open={isCreating} onClose={handleClosePanel} title="Create Portal">
         <PortalEditor
           embedded
           selectedLocation={placementLocation}
           onSuccess={handleCreateSuccess}
-          onCancel={handleCloseCreate}
+          onCancel={handleClosePanel}
         />
+      </SlideOverPanel>
+
+      {/* Portal detail panel */}
+      <SlideOverPanel open={!!selectedPortalId} onClose={handleClosePanel} title="Portal Details">
+        {selectedPortalId && <PortalDetail portalId={selectedPortalId} />}
       </SlideOverPanel>
     </div>
   );
