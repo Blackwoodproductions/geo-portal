@@ -128,12 +128,12 @@ export default function MapPage() {
   return (
     <div className="h-[calc(100vh-4rem)] relative">
       {/* Map provider selector */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-[1001]">
         <MapProviderSelector selected={provider} onChange={setProvider} />
       </div>
 
       {/* Scope toggle */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-[1001]">
         <div className="flex gap-1 bg-gray-800 rounded-lg p-1">
           {(['local', 'all'] as const).map((s) => (
             <button
@@ -171,7 +171,7 @@ export default function MapPage() {
       )}
 
       {/* Portal count / empty state overlay */}
-      <div className="absolute bottom-4 left-4 z-10 bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm">
+      <div className="absolute bottom-4 left-4 z-[1001] bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm">
         {scope === 'local' ? (
           results
             ? results.meta.total_results > 0
