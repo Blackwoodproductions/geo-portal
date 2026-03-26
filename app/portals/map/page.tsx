@@ -41,7 +41,7 @@ export default function MapPage() {
     lat: number; lng: number; name?: string;
   } | null>(null);
   const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
-  const [flyTo, setFlyTo] = useState<{ lat: number; lng: number } | null>(null);
+  const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; ts: number } | null>(null);
 
   // Auto-open panel from ?create=true
   useEffect(() => {
@@ -59,7 +59,8 @@ export default function MapPage() {
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {
           if (data?.latitude && data?.longitude) {
-            setFlyTo({ lat: data.latitude, lng: data.longitude });
+            setMapCenter({ lat: data.latitude, lng: data.longitude });
+            setFlyTo({ lat: data.latitude, lng: data.longitude, ts: Date.now() });
           }
         })
         .catch(() => {});
@@ -130,7 +131,7 @@ export default function MapPage() {
     setIsCreating(false);
     setPlacementLocation(null);
     if (lat !== undefined && lng !== undefined) {
-      setFlyTo({ lat, lng });
+      setFlyTo({ lat, lng, ts: Date.now() });
     }
   };
 

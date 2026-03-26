@@ -19,7 +19,7 @@ interface MapboxMapProps {
   }>;
   onMapClick?: (lat: number, lng: number) => void;
   onMoveEnd?: (lat: number, lng: number, zoom: number) => void;
-  flyTo?: { lat: number; lng: number } | null;
+  flyTo?: { lat: number; lng: number; ts?: number } | null;
   className?: string;
 }
 
@@ -81,7 +81,7 @@ export function MapboxMap({
     if (flyTo && mapRef.current) {
       mapRef.current.flyTo({ center: [flyTo.lng, flyTo.lat], zoom: 15, duration: 1000 });
     }
-  }, [flyTo?.lat, flyTo?.lng]);
+  }, [flyTo]);
 
   // Update markers
   useEffect(() => {
