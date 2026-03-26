@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { MapProviderSelector, MapProvider } from '@/components/map/MapProviderSelector';
@@ -29,7 +29,6 @@ type MapScope = 'local' | 'all';
 
 export default function MapPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [provider, setProvider] = useState<MapProvider>('openstreetmap');
   const [scope, setScope] = useState<MapScope>('local');
@@ -45,11 +44,12 @@ export default function MapPage() {
 
   // Auto-open panel from ?create=true
   useEffect(() => {
-    if (searchParams.get('create') === 'true' && user) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('create') === 'true' && user) {
       setIsCreating(true);
       window.history.replaceState({}, '', '/portals/map');
     }
-  }, [searchParams, user]);
+  }, [user]);
 
   // Get user location
   useEffect(() => {
