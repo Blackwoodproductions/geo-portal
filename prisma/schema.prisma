@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───
+
+enum PortalStyle {
+  neon_ring
+  holographic_frame
+  vortex_spiral
+  plasma_gate
+  space_rift
+  wormhole
+  nebula_cloud
+}
+
+enum ContentType {
+  image
+  video
+  website
+  business_info
+  mixed_media
+}
+
+// ─── Models ───
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String?  @map("display_name")
+  avatarUrl    String?  @map("avatar_url")
+  tokenVersion Int      @default(0) @map("token_version")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  portals   Portal[]
+  visits    PortalVisit[]
+  messages  PortalMessage[]
+  reactions PortalReaction[]
+
+  @@map("users")
+}
+
+model Portal {
+  id              String       @id @default(uuid())
+  ownerId         String       @map("owner_id")
+  name            String
+  description     String?
+  latitude        Float
+  longitude       Float
+  locationName    String?      @map("location_name")
+  neighborhood    String?
+  countryCode     String?      @map("country_code")
+  portalStyle     PortalStyle? @default(vortex_spiral) @map("portal_style")
+  portalType      String?      @default("vortex") @map("portal_type")
+  contentType     ContentType? @default(image) @map("content_type")
+  destinationType String?      @default("vroom") @map("destination_type")
+  destinationMeta Json?        @map("destination_meta")
+  contentUrl      String?      @map("content_url")
+  contentMetadata Json?        @map("content_metadata")
+  thumbnailUrl    String?      @map("thumbnail_url")
+  category        String       @default("general")
+  isActive        Boolean      @default(true) @map("is_active")
+  isPublic        Boolean      @default(true) @map("is_public")
+  isHidden        Boolean      @default(false) @map("is_hidden")
+  totalVisits     Int          @default(0) @map("total_visits")
+  totalInteractions Int        @default(0) @map("total_interactions")
+  gigiEarned      Float        @default(0) @map("gigi_earned")
+  placementCost   Float        @default(0) @map("placement_cost")
+  visitReward     Float        @default(0) @map("visit_reward")
+  placedAt        DateTime     @default(now()) @map("placed_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  expiresAt       DateTime?    @map("expires_at")
+
+  owner     User             @relation(fields: [ownerId], references: [id])
+  visits    PortalVisit[]
+  messages  PortalMessage[]
+  reactions PortalReaction[]
+
+  @@index([latitude, longitude], name: "idx_portal_location")
+  @@index([ownerId], name: "idx_portal_owner")
+  @@index([category], name: "idx_portal_category")
+  @@index([isActive, isPublic], name: "idx_portal_discovery")
+  @@map("portals")
+}
+
+model PortalVisit {
+  id        String   @id @default(uuid())
+  portalId  String   @map("portal_id")
+  userId    String?  @map("user_id")
+  sessionId String?  @map("session_id")
+  visitedAt DateTime @default(now()) @map("visited_at")
+
+  portal Portal @relation(fields: [portalId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id])
+
+  @@map("portal_visits")
+}
+
+model PortalMessage {
+  id        String   @id @default(uuid())
+  portalId  String   @map("portal_id")
+  userId    String   @map("user_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  portal Portal @relation(fields: [portalId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([portalId, createdAt], name: "idx_message_portal_time")
+  @@map("portal_messages")
+}
+
+model PortalReaction {
+  id           String   @id @default(uuid())
+  portalId     String   @map("portal_id")
+  userId       String   @map("user_id")
+  reactionType String   @map("reaction_type")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  portal Portal @relation(fields: [portalId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([portalId, userId, reactionType], name: "uq_reaction_per_user")
+  @@map("portal_reactions")
+}
