@@ -7,9 +7,8 @@ import 'leaflet/dist/leaflet.css';
 const TILE_STYLES = [
   { id: 'dark_all', label: 'Dark' },
   { id: 'dark_nolabels', label: 'Dark (no labels)' },
-  { id: 'voyager', label: 'Voyager' },
-  { id: 'voyager_nolabels', label: 'Voyager (no labels)' },
-  { id: 'rastertiles/voyager', label: 'Voyager Raster' },
+  { id: 'rastertiles/voyager', label: 'Voyager' },
+  { id: 'rastertiles/voyager_nolabels', label: 'Voyager (no labels)' },
   { id: 'light_all', label: 'Light' },
 ] as const;
 
