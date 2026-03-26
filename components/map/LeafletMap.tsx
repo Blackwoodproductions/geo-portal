@@ -56,7 +56,8 @@ export function LeafletMap({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const map = L.map(containerRef.current).setView(center, zoom);
+    const map = L.map(containerRef.current, { zoomControl: false }).setView(center, zoom);
+    L.control.zoom({ position: 'topleft' }).addTo(map);
     mapRef.current = map;
 
     const tile = L.tileLayer(tileUrl('dark_all'), {
@@ -114,10 +115,12 @@ export function LeafletMap({
 
   return (
     <div className={`w-full h-full min-h-[300px] relative ${className}`} style={style}>
+      {/* Push Leaflet zoom controls below the scope toggle */}
+      <style>{`.leaflet-top.leaflet-left { top: 48px; }`}</style>
       <div ref={containerRef} className="w-full h-full" />
 
       {/* Tile style picker — below zoom controls on the left */}
-      <div className="absolute left-2.5 z-[1000]" style={{ top: 80 }}>
+      <div className="absolute left-2.5 z-[1000]" style={{ top: 130 }}>
         <button
           onClick={() => setPickerOpen((o) => !o)}
           className="w-[34px] h-[34px] bg-white rounded shadow-md flex items-center justify-center hover:bg-gray-100 border border-gray-300"
