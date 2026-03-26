@@ -41,6 +41,7 @@ export default function MapPage() {
     lat: number; lng: number; name?: string;
   } | null>(null);
   const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
+  const [flyTo, setFlyTo] = useState<{ lat: number; lng: number } | null>(null);
 
   // Auto-open panel from ?create=true
   useEffect(() => {
@@ -53,6 +54,15 @@ export default function MapPage() {
     if (portalParam) {
       setSelectedPortalId(portalParam);
       window.history.replaceState({}, '', '/portals/map');
+      // Fetch portal location and center map on it
+      fetch(`/api/portals/${portalParam}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data?.latitude && data?.longitude) {
+            setFlyTo({ lat: data.latitude, lng: data.longitude });
+          }
+        })
+        .catch(() => {});
     }
   }, [user]);
 
@@ -115,10 +125,13 @@ export default function MapPage() {
   }, [isCreating]);
 
   // Build markers based on scope
-  const handleMarkerClick = (id: string) => {
+  const handleMarkerClick = (id: string, lat?: number, lng?: number) => {
     setSelectedPortalId(id);
     setIsCreating(false);
     setPlacementLocation(null);
+    if (lat !== undefined && lng !== undefined) {
+      setFlyTo({ lat, lng });
+    }
   };
 
   const portalMarkers = scope === 'local'
@@ -128,7 +141,7 @@ export default function MapPage() {
         lng: p.longitude,
         label: `${p.name} (${p.distanceMeters}m)`,
         color: '#d946ef',
-        onClick: () => handleMarkerClick(p.id),
+        onClick: () => handleMarkerClick(p.id, p.latitude, p.longitude),
       }))
     : (allPortalsQuery.data?.portals || []).map((p) => ({
         id: p.id,
@@ -136,7 +149,7 @@ export default function MapPage() {
         lng: p.longitude,
         label: p.name,
         color: '#d946ef',
-        onClick: () => handleMarkerClick(p.id),
+        onClick: () => handleMarkerClick(p.id, p.latitude, p.longitude),
       }));
 
   // Add placement marker when creating
@@ -230,6 +243,7 @@ export default function MapPage() {
             markers={markers}
             onMoveEnd={handleMoveEnd}
             onMapClick={handleMapClick}
+            flyTo={flyTo}
           />
         ) : (
           <MapboxMap
@@ -239,6 +253,7 @@ export default function MapPage() {
             markers={markers}
             onMoveEnd={handleMoveEnd}
             onMapClick={handleMapClick}
+            flyTo={flyTo}
           />
         )}
       </div>

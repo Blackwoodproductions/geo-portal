@@ -19,6 +19,7 @@ interface MapboxMapProps {
   }>;
   onMapClick?: (lat: number, lng: number) => void;
   onMoveEnd?: (lat: number, lng: number, zoom: number) => void;
+  flyTo?: { lat: number; lng: number } | null;
   className?: string;
 }
 
@@ -28,6 +29,7 @@ export function MapboxMap({
   markers = [],
   onMapClick,
   onMoveEnd,
+  flyTo,
   className = '',
 }: MapboxMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +75,13 @@ export function MapboxMap({
       mapRef.current = null;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fly to location when requested
+  useEffect(() => {
+    if (flyTo && mapRef.current) {
+      mapRef.current.flyTo({ center: [flyTo.lng, flyTo.lat], zoom: 15, duration: 1000 });
+    }
+  }, [flyTo?.lat, flyTo?.lng]);
 
   // Update markers
   useEffect(() => {

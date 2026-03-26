@@ -31,6 +31,7 @@ interface LeafletMapProps {
   }>;
   onMapClick?: (lat: number, lng: number) => void;
   onMoveEnd?: (lat: number, lng: number, zoom: number) => void;
+  flyTo?: { lat: number; lng: number } | null;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -41,6 +42,7 @@ export function LeafletMap({
   markers = [],
   onMapClick,
   onMoveEnd,
+  flyTo,
   className = '',
   style,
 }: LeafletMapProps) {
@@ -83,6 +85,13 @@ export function LeafletMap({
       tileLayerRef.current = null;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fly to location when requested
+  useEffect(() => {
+    if (flyTo && mapRef.current) {
+      mapRef.current.flyTo([flyTo.lat, flyTo.lng], 15, { duration: 1 });
+    }
+  }, [flyTo?.lat, flyTo?.lng]);
 
   // Swap tile layer when style changes
   useEffect(() => {
