@@ -18,19 +18,23 @@ interface MapboxMapProps {
     onClick?: () => void;
   }>;
   onMapClick?: (lat: number, lng: number) => void;
+  onMoveEnd?: (lat: number, lng: number, zoom: number) => void;
   className?: string;
 }
 
 export function MapboxMap({
-  center = [-74.006, 40.7128],
+  center = [-74.0721, 4.711],
   zoom = 13,
   markers = [],
   onMapClick,
+  onMoveEnd,
   className = '',
 }: MapboxMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapMarkersRef = useRef<mapboxgl.Marker[]>([]);
+  const onMoveEndRef = useRef(onMoveEnd);
+  onMoveEndRef.current = onMoveEnd;
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -56,6 +60,11 @@ export function MapboxMap({
     if (onMapClick) {
       map.on('click', (e) => onMapClick(e.lngLat.lat, e.lngLat.lng));
     }
+
+    map.on('moveend', () => {
+      const c = map.getCenter();
+      onMoveEndRef.current?.(c.lat, c.lng, map.getZoom());
+    });
 
     return () => {
       map.remove();

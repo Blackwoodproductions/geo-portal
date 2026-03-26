@@ -31,15 +31,17 @@ interface LeafletMapProps {
     onClick?: () => void;
   }>;
   onMapClick?: (lat: number, lng: number) => void;
+  onMoveEnd?: (lat: number, lng: number, zoom: number) => void;
   className?: string;
   style?: React.CSSProperties;
 }
 
 export function LeafletMap({
-  center = [40.7128, -74.006],
+  center = [4.711, -74.0721],
   zoom = 13,
   markers = [],
   onMapClick,
+  onMoveEnd,
   className = '',
   style,
 }: LeafletMapProps) {
@@ -47,6 +49,8 @@ export function LeafletMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const onMoveEndRef = useRef(onMoveEnd);
+  onMoveEndRef.current = onMoveEnd;
   const [tileStyle, setTileStyle] = useState<TileStyleId>('dark_all');
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -65,6 +69,11 @@ export function LeafletMap({
     if (onMapClick) {
       map.on('click', (e) => onMapClick(e.latlng.lat, e.latlng.lng));
     }
+
+    map.on('moveend', () => {
+      const c = map.getCenter();
+      onMoveEndRef.current?.(c.lat, c.lng, map.getZoom());
+    });
 
     return () => {
       map.remove();
